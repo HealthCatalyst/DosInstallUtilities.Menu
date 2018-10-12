@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-ShowTroubleshootingMenu
+Shows troubleshooting menu
 
 .DESCRIPTION
 ShowTroubleshootingMenu

@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-ShowMainMenu
+Shows main menu
 
 .DESCRIPTION
 ShowMainMenu

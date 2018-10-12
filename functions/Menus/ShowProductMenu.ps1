@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-ShowProductMenu
+Shows product menu
 
 .DESCRIPTION
 ShowProductMenu
