@@ -90,22 +90,9 @@ function ShowMainMenu() {
         $userinput = Read-Host "Please make a selection"
         switch ($userinput) {
             '1' {
-                $config = $(ReadConfigFile).Config
-                Write-Verbose $config
-
-                LoginToAzure
-
-                SetCurrentAzureSubscription -subscriptionName $($config.azure.subscription)
-
-                SetStorageAccountNameIntoSecret -resourceGroup $config.azure.resourceGroup -customerid $config.customerid
-
-                kubectl get "deployments,pods,services,ingress,secrets" --namespace="default" -o wide
-                kubectl get "deployments,pods,services,ingress,secrets" --namespace=kube-system -o wide
-
-                InitHelm
-
-                # SetupNetworkSecurity -config $config
-                SetupLoadBalancer -baseUrl $baseUrl -config $config -local $local
+                [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
+                $resourceGroup = Read-Host "Resource Group"
+                InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName
             }
             '2' {
                 LaunchKubernetesDashboard
