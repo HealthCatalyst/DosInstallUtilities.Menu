@@ -62,7 +62,7 @@ function ShowProductMenu() {
         $userinput = Read-Host "Please make a selection"
         switch ($userinput) {
             '1' {
-                $packageUrl = "https://raw.githubusercontent.com/HealthCatalyst/helm.realtime/master/fabricrealtime-1.0.0.tgz"
+                $packageUrl = $globals.realtimePackageUrl
                 $namespace = "fabricrealtime"
                 InstallProductInAzure -namespace $namespace -packageUrl $packageUrl -local $local
             }

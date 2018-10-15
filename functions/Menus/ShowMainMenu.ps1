@@ -104,7 +104,7 @@ function ShowMainMenu() {
 
                 InitHelm
 
-                SetupNetworkSecurity -config $config
+                # SetupNetworkSecurity -config $config
                 SetupLoadBalancer -baseUrl $baseUrl -config $config -local $local
             }
             '2' {
