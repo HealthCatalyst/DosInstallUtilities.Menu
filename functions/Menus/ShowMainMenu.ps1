@@ -95,7 +95,8 @@ function ShowMainMenu() {
                 InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName
             }
             '2' {
-                LaunchKubernetesDashboard
+                $resourceGroup = Read-Host "Resource Group"
+                LaunchAksDashboard -resourceGroup $resourceGroup
             }
             '3' {
                 Do {
