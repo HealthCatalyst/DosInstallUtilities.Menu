@@ -52,9 +52,10 @@ function ShowMainMenu() {
         Write-Host "------ Infrastructure -------"
         Write-Host "1: Configure existing Azure Container Service"
         Write-Host "2: Launch Kubernetes Dashboard"
+        Write-Host "3: Launch AKS Dashboard"
         Write-Host "------ Troubleshooting Infrastructure -------"
-        Write-Host "3: Start VMs in Resource Group"
-        Write-Host "4: Stop VMs in Resource Group"
+        Write-Host "5: Start VMs in Resource Group"
+        Write-Host "6: Stop VMs in Resource Group"
 
         #    Write-Host "3: Launch Traefik Dashboard"
         Write-Host "9: Show nodes"
@@ -95,10 +96,13 @@ function ShowMainMenu() {
                 InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName
             }
             '2' {
+                LaunchKubernetesDashboard
+            }
+            '3' {
                 $resourceGroup = Read-Host "Resource Group"
                 LaunchAksDashboard -resourceGroup $resourceGroup
             }
-            '3' {
+            '5' {
                 Do {
                     $AKS_PERS_RESOURCE_GROUP = Read-Host "Resource Group"
                 }
@@ -106,7 +110,7 @@ function ShowMainMenu() {
 
                 StartVMsInResourceGroup -resourceGroup $AKS_PERS_RESOURCE_GROUP
             }
-            '4' {
+            '6' {
                 Do {
                     $AKS_PERS_RESOURCE_GROUP = Read-Host "Resource Group"
                 }
