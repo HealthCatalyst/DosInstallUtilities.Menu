@@ -92,14 +92,18 @@ function ShowMainMenu() {
         switch ($userinput) {
             '1' {
                 [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
-                $resourceGroup = Read-Host "Resource Group"
+
+                $resourceGroup = GetResourceGroupFromSecret
+                if(!$resourceGroup){
+                    $resourceGroup = Read-Host "Resource Group"
+                }
                 InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName
             }
-            '2' {
-                LaunchKubernetesDashboard
-            }
             '3' {
-                $resourceGroup = Read-Host "Resource Group"
+                $resourceGroup = GetResourceGroupFromSecret
+                if(!$resourceGroup){
+                    $resourceGroup = Read-Host "Resource Group"
+                }
                 LaunchAksDashboard -resourceGroup $resourceGroup
             }
             '5' {
