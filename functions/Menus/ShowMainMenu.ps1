@@ -50,7 +50,7 @@ function ShowMainMenu() {
         Write-Warning "CURRENT CLUSTER: $currentcluster"
 
         Write-Host "------ Infrastructure -------"
-        Write-Host "1: Configure existing Azure Container Service"
+        Write-Host "1: Configure existing Azure Kubernetes Service"
         Write-Host "2: Launch Kubernetes Dashboard"
         Write-Host "3: Launch AKS Dashboard"
         Write-Host "------ Troubleshooting Infrastructure -------"
