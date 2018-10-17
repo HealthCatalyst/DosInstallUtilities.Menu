@@ -190,7 +190,7 @@ function ShowMainMenu() {
                 $skip = $true
             }
             '52' {
-                ShowProductMenu -baseUrl $baseUrl -namespace "fabricrealtime" -local $local
+                ShowRealtimeMenu -baseUrl $baseUrl -namespace "fabricrealtime" -local $local
                 $skip = $true
             }
             '100' {
