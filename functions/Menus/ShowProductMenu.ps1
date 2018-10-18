@@ -172,6 +172,7 @@ function ShowProductMenu() {
                 Do { $confirmation = Read-Host "Do you want to continue? (y/n)"}
                 while ([string]::IsNullOrWhiteSpace($confirmation))
 
+                $isAzure = $true
                 if ($confirmation -eq "y") {
                     DeleteNamespaceAndData -namespace "$namespace" -isAzure $isAzure
                 }
