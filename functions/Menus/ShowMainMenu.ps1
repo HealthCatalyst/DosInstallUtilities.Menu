@@ -57,10 +57,14 @@ function ShowMainMenu() {
         }
         Write-Warning "CURRENT CLUSTER: $currentcluster"
 
+        Write-Host "------ Access Control -------"
+        Write-Host "1: Login as admin"
+        Write-Host "2: Login as user"
+        Write-Host "3: Enable access for a user"
+
         Write-Host "------ Infrastructure -------"
-        Write-Host "1: Enable access for a user"
-        Write-Host "2: Configure existing Azure Kubernetes Service"
-        Write-Host "3: Launch AKS Dashboard"
+        Write-Host "12: Configure existing Azure Kubernetes Service"
+        Write-Host "13: Launch AKS Dashboard"
         Write-Host "------ Troubleshooting Infrastructure -------"
         #    Write-Host "3: Launch Traefik Dashboard"
         Write-Host "9: Show nodes"
@@ -85,11 +89,40 @@ function ShowMainMenu() {
         $userinput = Read-Host "Please make a selection"
         switch ($userinput) {
             '1' {
+                LoginToAzure -Verbose
+                [string] $resourceGroup = ""
+                # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
+                while ([string]::IsNullOrWhiteSpace($resourceGroup)) {
+                    $resourceGroup = Read-Host "Resource Group"
+                }
+
+                [string] $clusterName = $(GetClusterName -resourceGroup $resourceGroup -Verbose).ClusterName
+
+                GetClusterCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
+            }
+            '2' {
+                LoginToAzure -Verbose
+
+                [string] $resourceGroup = ""
+                # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
+                while ([string]::IsNullOrWhiteSpace($resourceGroup)) {
+                    $resourceGroup = Read-Host "Resource Group"
+                }
+
+                [string] $clusterName = $(GetClusterName -resourceGroup $resourceGroup -Verbose).ClusterName
+
+                GetClusterCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
+            }
+            '3' {
+                LoginToAzure -Verbose
+
+                kubectl version
+
                 [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
 
-                $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
-                while ([string]::IsNullOrWhiteSpace($resourceGroup))
-                {
+                [string] $resourceGroup = ""
+                # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
+                while ([string]::IsNullOrWhiteSpace($resourceGroup)) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
 
@@ -110,7 +143,7 @@ function ShowMainMenu() {
                 }
                 AddPermissionForUser -userName $userName -Verbose
             }
-            '2' {
+            '12' {
                 [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
 
                 $resourceGroup = $(GetResourceGroupFromSecret).Value
@@ -119,7 +152,7 @@ function ShowMainMenu() {
                 }
                 InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName -Verbose
             }
-            '3' {
+            '13' {
                 $resourceGroup = $(GetResourceGroupFromSecret).Value
                 if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
