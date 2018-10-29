@@ -31,9 +31,17 @@ function ShowMainMenu() {
         [Parameter(Mandatory = $true)]
         [bool]
         $local
+        ,
+        [Parameter(Mandatory = $false)]
+        [bool]
+        $prerelease = $false
     )
 
     Write-Verbose 'ShowMainMenu: Starting'
+
+    Set-StrictMode -Version latest
+    # stop whenever there is an error
+    $ErrorActionPreference = "Stop"
 
     $userinput = ""
     while ($userinput -ne "q") {
@@ -50,7 +58,8 @@ function ShowMainMenu() {
         Write-Warning "CURRENT CLUSTER: $currentcluster"
 
         Write-Host "------ Infrastructure -------"
-        Write-Host "1: Configure existing Azure Kubernetes Service"
+        Write-Host "1: Enable access for a user"
+        Write-Host "2: Configure existing Azure Kubernetes Service"
         Write-Host "3: Launch AKS Dashboard"
         Write-Host "------ Troubleshooting Infrastructure -------"
         #    Write-Host "3: Launch Traefik Dashboard"
@@ -78,15 +87,41 @@ function ShowMainMenu() {
             '1' {
                 [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
 
-                $resourceGroup = GetResourceGroupFromSecret
-                if(!$resourceGroup){
+                $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
+                while ([string]::IsNullOrWhiteSpace($resourceGroup))
+                {
                     $resourceGroup = Read-Host "Resource Group"
                 }
-                InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName
+
+                # [hashtable] $servicePrincipal = GetServicePrincipalFromKeyVault -resourceGroup $resourceGroup -Verbose
+
+                # LoginAsServiceAccount -servicePrincipalClientId $servicePrincipal.ServicePrincipalClientId `
+                #     -servicePrincipalClientSecret $servicePrincipal.ServicePrincipalClientSecret `
+                #     -tenantId $servicePrincipal.TenantId `
+                #     -Verbose
+
+                [string] $clusterName = $(GetClusterName -resourceGroup $resourceGroup -Verbose).ClusterName
+
+                GetClusterAdminCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
+
+                [string] $userName = ""
+                while ([string]::IsNullOrWhiteSpace($userName)) {
+                    $userName = Read-Host "User name to grant access to cluster"
+                }
+                AddPermissionForUser -userName $userName -Verbose
+            }
+            '2' {
+                [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
+
+                $resourceGroup = $(GetResourceGroupFromSecret).Value
+                if (!$resourceGroup) {
+                    $resourceGroup = Read-Host "Resource Group"
+                }
+                InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName -Verbose
             }
             '3' {
-                $resourceGroup = GetResourceGroupFromSecret
-                if(!$resourceGroup){
+                $resourceGroup = $(GetResourceGroupFromSecret).Value
+                if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
                 LaunchAksDashboard -resourceGroup $resourceGroup
