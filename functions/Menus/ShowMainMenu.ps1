@@ -43,6 +43,21 @@ function ShowMainMenu() {
     # stop whenever there is an error
     $ErrorActionPreference = "Stop"
 
+    LoginToAzure -Verbose
+    [string] $expiresOn = $(az account get-access-token --query "expiresOn" -o tsv)
+    if (![string]::IsNullOrEmpty($expiresOn)) {
+        Write-Host "You are already logged into Azure"
+    }
+    else {
+        [Console]::ResetColor()
+        Write-Host "Please login to Azure"
+        az login
+    }
+
+    [string] $loggedInUser = $(az account show --query "user.name"  --output tsv)
+    [string] $subscriptionName = $(az account show --query "name"  --output tsv)
+    Write-Host "User = $loggedInUser with subscription [$subscriptionName]"
+
     $userinput = ""
     while ($userinput -ne "q") {
         $skip = $false
@@ -61,6 +76,7 @@ function ShowMainMenu() {
         Write-Host "1: Login as admin"
         Write-Host "2: Login as user"
         Write-Host "3: Enable access for a user"
+        Write-Host "4: Install client tools"
 
         Write-Host "------ Infrastructure -------"
         Write-Host "12: Configure existing Azure Kubernetes Service"
@@ -73,6 +89,7 @@ function ShowMainMenu() {
         Write-Host "----- Troubleshooting ----"
         Write-Host "20: Show status of cluster"
         Write-Host "23: View status of DNS pods"
+        Write-Host "24: Shows Logs of pods in kube-system"
 
         Write-Host "------ Keyvault -------"
         Write-Host "26: Copy Kubernetes secrets to keyvault"
@@ -80,6 +97,7 @@ function ShowMainMenu() {
 
         Write-Host "------ Load Balancer -------"
         Write-Host "30: Test load balancer"
+        Write-Host "31: Show load balancer logs"
 
         Write-Host "------ Realtime -------"
         Write-Host "52: Fabric.Realtime Menu"
@@ -89,7 +107,6 @@ function ShowMainMenu() {
         $userinput = Read-Host "Please make a selection"
         switch ($userinput) {
             '1' {
-                LoginToAzure -Verbose
                 [string] $resourceGroup = ""
                 # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
                 while ([string]::IsNullOrWhiteSpace($resourceGroup)) {
@@ -101,8 +118,6 @@ function ShowMainMenu() {
                 GetClusterCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
             }
             '2' {
-                LoginToAzure -Verbose
-
                 [string] $resourceGroup = ""
                 # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
                 while ([string]::IsNullOrWhiteSpace($resourceGroup)) {
@@ -114,8 +129,6 @@ function ShowMainMenu() {
                 GetClusterCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
             }
             '3' {
-                LoginToAzure -Verbose
-
                 kubectl version
 
                 [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
@@ -143,6 +156,11 @@ function ShowMainMenu() {
                 }
                 AddPermissionForUser -userName $userName -Verbose
             }
+            '4' {
+                InstallKubectl
+
+                InstallHelmClient
+            }
             '12' {
                 [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
 
@@ -157,7 +175,7 @@ function ShowMainMenu() {
                 if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
-                LaunchAksDashboard -resourceGroup $resourceGroup
+                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
             }
             '9' {
                 Write-Host "Current cluster: $(kubectl config current-context)"
@@ -180,6 +198,9 @@ function ShowMainMenu() {
             '23' {
                 RestartDNSPodsIfNeeded
             }
+            '24' {
+                kubectl logs -l "app=nginx-ingress" -n kube-system
+            }
             '26' {
                 $currentResourceGroup = ReadSecretData -secretname azure-secret -valueName resourcegroup -Verbose
                 CopyKubernetesSecretsToKeyVault -resourceGroup $currentResourceGroup -Verbose
@@ -189,6 +210,9 @@ function ShowMainMenu() {
                 CopyKeyVaultSecretsToKubernetes -resourceGroup $currentResourceGroup -Verbose
             }
             '30' {
+                TestAzureLoadBalancer
+            }
+            '31' {
                 TestAzureLoadBalancer
             }
             '50' {
