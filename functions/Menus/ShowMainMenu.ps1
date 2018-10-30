@@ -79,6 +79,7 @@ function ShowMainMenu() {
         Write-Host "4: Install client tools"
 
         Write-Host "------ Infrastructure -------"
+        Write-Host "11: Connect to different Azure Kubernetes Service"
         Write-Host "12: Configure existing Azure Kubernetes Service"
         Write-Host "13: Launch AKS Dashboard"
         Write-Host "------ Troubleshooting Infrastructure -------"
@@ -160,6 +161,20 @@ function ShowMainMenu() {
                 InstallKubectl
 
                 InstallHelmClient
+            }
+            '11' {
+                [string] $resourceGroup = ""
+                # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
+                while ([string]::IsNullOrWhiteSpace($resourceGroup)) {
+                    $resourceGroup = Read-Host "Resource Group"
+                }
+                [string] $clusterName = $(GetClusterName -resourceGroup $resourceGroup -Verbose).ClusterName
+
+                GetClusterCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
+
+                $currentcluster = $(kubectl config current-context 2> $null)
+
+                Write-Host "Now pointing to cluster $currentcluster"
             }
             '12' {
                 [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
