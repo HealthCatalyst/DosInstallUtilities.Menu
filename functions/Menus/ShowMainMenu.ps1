@@ -162,6 +162,19 @@ function ShowMainMenu() {
 
                 InstallHelmClient
             }
+            '9' {
+                Write-Host "Current cluster: $(kubectl config current-context)"
+                kubectl version --short
+                kubectl get "nodes"
+            }
+            '10' {
+                Write-Host "If you didn't setup DNS, add the following entries in your c:\windows\system32\drivers\etc\hosts file to access the urls from your browser"
+                $loadBalancerIPResult = GetLoadBalancerIPs
+                $EXTERNAL_IP = $loadBalancerIPResult.ExternalIP
+
+                $dnshostname = $(ReadSecretValue -secretname "dnshostname" -namespace "default")
+                Write-Host "$EXTERNAL_IP $dnshostname"
+            }
             '11' {
                 [string] $resourceGroup = ""
                 # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
@@ -192,19 +205,6 @@ function ShowMainMenu() {
                 }
                 LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
             }
-            '9' {
-                Write-Host "Current cluster: $(kubectl config current-context)"
-                kubectl version --short
-                kubectl get "nodes"
-            }
-            '10' {
-                Write-Host "If you didn't setup DNS, add the following entries in your c:\windows\system32\drivers\etc\hosts file to access the urls from your browser"
-                $loadBalancerIPResult = GetLoadBalancerIPs
-                $EXTERNAL_IP = $loadBalancerIPResult.ExternalIP
-
-                $dnshostname = $(ReadSecretValue -secretname "dnshostname" -namespace "default")
-                Write-Host "$EXTERNAL_IP $dnshostname"
-            }
             '20' {
                 Write-Host "Current cluster: $(kubectl config current-context)"
                 kubectl version --short
@@ -228,7 +228,7 @@ function ShowMainMenu() {
                 TestAzureLoadBalancer
             }
             '31' {
-                TestAzureLoadBalancer
+                kubectl logs -l "app=nginx-ingress" -n kube-system
             }
             '50' {
                 ShowTroubleshootingMenu -baseUrl $baseUrl -local $local
