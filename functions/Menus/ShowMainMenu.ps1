@@ -75,11 +75,12 @@ function ShowMainMenu() {
         Write-Host "------ Access Control -------"
         Write-Host "1: Login as admin"
         Write-Host "2: Login as user"
-        Write-Host "3: Enable access for a user"
+        # Write-Host "3: Enable access for a user"
         Write-Host "4: Install client tools"
+        Write-Host "5: Change Azure Subscription"
+        Write-Host "11: Connect to different Azure Kubernetes Service"
 
         Write-Host "------ Infrastructure -------"
-        Write-Host "11: Connect to different Azure Kubernetes Service"
         Write-Host "12: Configure existing Azure Kubernetes Service"
         Write-Host "13: Launch AKS Dashboard"
         Write-Host "------ Troubleshooting Infrastructure -------"
@@ -102,6 +103,8 @@ function ShowMainMenu() {
 
         Write-Host "------ Realtime -------"
         Write-Host "52: Fabric.Realtime Menu"
+        Write-Host "------ NLP -------"
+        Write-Host "62: Fabric.NLP Menu"
 
         Write-Host "q: Quit"
         #--------------------------------------
@@ -162,6 +165,9 @@ function ShowMainMenu() {
 
                 InstallHelmClient
             }
+            '5' {
+                ChooseFromSubscriptionList
+            }
             '9' {
                 Write-Host "Current cluster: $(kubectl config current-context)"
                 kubectl version --short
@@ -192,7 +198,7 @@ function ShowMainMenu() {
             '12' {
                 [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
 
-                $resourceGroup = $(GetResourceGroupFromSecret).Value
+                $resourceGroup = ""
                 if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
@@ -236,6 +242,10 @@ function ShowMainMenu() {
             }
             '52' {
                 ShowRealtimeMenu -baseUrl $baseUrl -namespace "fabricrealtime" -local $local
+                $skip = $true
+            }
+            '62' {
+                ShowNlpMenu -baseUrl $baseUrl -namespace "fabricnlp" -local $local
                 $skip = $true
             }
             'q' {
