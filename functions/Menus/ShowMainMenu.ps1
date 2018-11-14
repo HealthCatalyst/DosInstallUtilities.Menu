@@ -58,6 +58,15 @@ function ShowMainMenu() {
     [string] $subscriptionName = $(az account show --query "name"  --output tsv)
     Write-Host "User = $loggedInUser with subscription [$subscriptionName]"
 
+    $kubectlInfo = $(Get-Command kubectl.exe -ErrorAction SilentlyContinue)
+    if($kubectlInfo){
+        [string] $kubectlVersion = $(kubectl version --client=true --short=true)
+        Write-Host "Using kubectl version [$kubectlVersion] from $($kubectlInfo.Source)"
+    }
+    else {
+        Write-Warning "No kubectl found in the path.  Choose Install Client tools below."
+    }
+
     $userinput = ""
     while ($userinput -ne "q") {
         $skip = $false

@@ -62,7 +62,7 @@ function ShowProductMenu() {
         $userinput = Read-Host "Please make a selection"
         switch ($userinput) {
             '1' {
-                $packageUrl = $globals.realtimePackageUrl
+                $packageUrl = $kubeGlobals.realtimePackageUrl
                 $namespace = "fabricrealtime"
                 InstallProductInAzure -namespace $namespace -packageUrl $packageUrl -local $local
             }
