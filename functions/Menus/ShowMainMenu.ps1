@@ -43,6 +43,14 @@ function ShowMainMenu() {
     # stop whenever there is an error
     $ErrorActionPreference = "Stop"
 
+    $azClientInfo = $(Get-Command az -ErrorAction SilentlyContinue)
+    if($azClientInfo){
+        Write-Host "Using az client from $($azClientInfo.Source)"
+    }
+    else {
+        Write-Warning "No az client found in the path.  Install from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest."
+    }
+
     LoginToAzure -Verbose
     [string] $expiresOn = $(az account get-access-token --query "expiresOn" -o tsv)
     if (![string]::IsNullOrEmpty($expiresOn)) {
@@ -65,6 +73,14 @@ function ShowMainMenu() {
     }
     else {
         Write-Warning "No kubectl found in the path.  Choose Install Client tools below."
+    }
+    $helmClientInfo = $(Get-Command helm.exe -ErrorAction SilentlyContinue)
+    if($helmClientInfo){
+        [string] $helmClientVersion = $(helm version --client=true --short=true)
+        Write-Host "Using helm version [$helmClientVersion] from $($helmClientInfo.Source)"
+    }
+    else {
+        Write-Warning "No helm.exe found in the path.  Choose Install Client tools below."
     }
 
     $userinput = ""
