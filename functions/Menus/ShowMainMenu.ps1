@@ -101,12 +101,13 @@ function ShowMainMenu() {
         Write-Host "1: Login as admin"
         Write-Host "2: Login as user"
         Write-Host "4: Install client tools"
+        Write-Host "5: Initialize Helm"
         Write-Host "------ AKS -------"
         # Write-Host "3: Enable access for a user"
-        Write-Host "5: Change Azure Subscription"
+        Write-Host "10: Change Azure Subscription"
         Write-Host "11: Connect to different Azure Kubernetes Service"
         Write-Host "------ Dashboard -------"
-        Write-Host "10: Launch AKS Dashboard"
+        Write-Host "15: Launch AKS Dashboard"
         Write-Host "------ Infrastructure -------"
         Write-Host "12: Install Load Balancer"
         Write-Host "13: Show Installed Helm Packages"
@@ -190,7 +191,7 @@ function ShowMainMenu() {
                 InstallHelmClient
             }
             '5' {
-                ChooseFromSubscriptionList
+                InitHelm
             }
             '9' {
                 Write-Host "Current cluster: $(kubectl config current-context)"
@@ -198,11 +199,7 @@ function ShowMainMenu() {
                 kubectl get "nodes"
             }
             '10' {
-                $resourceGroup = $(GetResourceGroupFromSecret).Value
-                if (!$resourceGroup) {
-                    $resourceGroup = Read-Host "Resource Group"
-                }
-                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
+                ChooseFromSubscriptionList
             }
             '11' {
                 [string] $resourceGroup = ""
@@ -229,6 +226,13 @@ function ShowMainMenu() {
             }
             '13' {
                 ListHelmPackages
+            }
+            '15' {
+                $resourceGroup = $(GetResourceGroupFromSecret).Value
+                if (!$resourceGroup) {
+                    $resourceGroup = Read-Host "Resource Group"
+                }
+                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
             }
             '20' {
                 Write-Host "Current cluster: $(kubectl config current-context)"
