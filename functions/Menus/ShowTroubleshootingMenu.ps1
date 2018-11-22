@@ -50,6 +50,9 @@ function ShowTroubleshootingMenu() {
         Write-Host "------ Other tasks ---- "
         Write-Host "33: Create kubeconfig"
         Write-Host "34: Move TCP ports to main LoadBalancer"
+        Write-Host "--------- DNS entries --------"
+        Write-Host "41: Show DNS entries to make in DNS server"
+        Write-Host "42: Show DNS entries for /etc/hosts"
         Write-Host "--- helpers ---"
         Write-Host "q: Go back to main menu"
         $userinput = Read-Host "Please make a selection"
@@ -76,6 +79,16 @@ function ShowTroubleshootingMenu() {
             }
             '34' {
                 MovePortsToLoadBalancer -resourceGroup $(GetResourceGroup).ResourceGroup
+            }
+            '41' {
+                WriteDNSCommands
+            }
+            '42' {
+                $loadBalancerIPResult = $(GetLoadBalancerIPs)
+                Write-Host "If you didn't setup DNS, add the following entries in your c:\windows\system32\drivers\etc\hosts file to access the urls from your browser"
+                $dnshostname = $(ReadSecretValue -secretname "dnshostname" -namespace "default")
+                Write-Host "$($loadBalancerIPResult.ExternalIP) $dnshostname"
+                Write-Host "$($loadBalancerIPResult.InternalIP) internal.$dnshostname"
             }
             'q' {
                 return

@@ -101,22 +101,21 @@ function ShowMainMenu() {
         Write-Host "1: Login as admin"
         Write-Host "2: Login as user"
         Write-Host "4: Install client tools"
-        Write-Host "------ Choose AKS -------"
+        Write-Host "------ AKS -------"
         # Write-Host "3: Enable access for a user"
         Write-Host "5: Change Azure Subscription"
         Write-Host "11: Connect to different Azure Kubernetes Service"
+        Write-Host "------ Dashboard -------"
+        Write-Host "10: Launch AKS Dashboard"
         Write-Host "------ Infrastructure -------"
         Write-Host "12: Install Load Balancer"
-        Write-Host "------ Troubleshooting Infrastructure -------"
-        Write-Host "13: Launch AKS Dashboard"
-        #    Write-Host "3: Launch Traefik Dashboard"
-        Write-Host "9: Show nodes"
-        Write-Host "10: Show DNS entries for /etc/hosts"
-
+        Write-Host "13: Show Installed Helm Packages"
         Write-Host "----- Troubleshooting ----"
+        Write-Host "9: Show nodes"
         Write-Host "20: Show status of cluster"
         Write-Host "23: View status of DNS pods"
         Write-Host "24: Shows Logs of pods in kube-system"
+        Write-Host "50: Show Troubleshooting Menu"
 
         Write-Host "------ Keyvault -------"
         Write-Host "26: Copy Kubernetes secrets to keyvault"
@@ -199,12 +198,11 @@ function ShowMainMenu() {
                 kubectl get "nodes"
             }
             '10' {
-                Write-Host "If you didn't setup DNS, add the following entries in your c:\windows\system32\drivers\etc\hosts file to access the urls from your browser"
-                $loadBalancerIPResult = GetLoadBalancerIPs
-                $EXTERNAL_IP = $loadBalancerIPResult.ExternalIP
-
-                $dnshostname = $(ReadSecretValue -secretname "dnshostname" -namespace "default")
-                Write-Host "$EXTERNAL_IP $dnshostname"
+                $resourceGroup = $(GetResourceGroupFromSecret).Value
+                if (!$resourceGroup) {
+                    $resourceGroup = Read-Host "Resource Group"
+                }
+                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
             }
             '11' {
                 [string] $resourceGroup = ""
@@ -230,11 +228,7 @@ function ShowMainMenu() {
                 InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName -Verbose
             }
             '13' {
-                $resourceGroup = $(GetResourceGroupFromSecret).Value
-                if (!$resourceGroup) {
-                    $resourceGroup = Read-Host "Resource Group"
-                }
-                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
+                ListHelmPackages
             }
             '20' {
                 Write-Host "Current cluster: $(kubectl config current-context)"
