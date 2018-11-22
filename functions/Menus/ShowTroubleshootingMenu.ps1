@@ -53,6 +53,7 @@ function ShowTroubleshootingMenu() {
         Write-Host "--------- DNS entries --------"
         Write-Host "41: Show DNS entries to make in DNS server"
         Write-Host "42: Show DNS entries for /etc/hosts"
+        Write-Host "43: Flush DNS on local machine"
         Write-Host "--- helpers ---"
         Write-Host "q: Go back to main menu"
         $userinput = Read-Host "Please make a selection"
@@ -89,6 +90,10 @@ function ShowTroubleshootingMenu() {
                 $dnshostname = $(ReadSecretValue -secretname "dnshostname" -namespace "default")
                 Write-Host "$($loadBalancerIPResult.ExternalIP) $dnshostname"
                 Write-Host "$($loadBalancerIPResult.InternalIP) internal.$dnshostname"
+            }
+            '43' {
+                Read-Host "Script needs elevated privileges to flushdns.  Hit ENTER to launch script to set PATH"
+                Start-Process powershell -verb RunAs -ArgumentList "ipconfig /flushdns"
             }
             'q' {
                 return
