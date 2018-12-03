@@ -108,8 +108,9 @@ function ShowMainMenu() {
         Write-Host "11: Connect to different Azure Kubernetes Service"
         Write-Host "------ Dashboard -------"
         Write-Host "15: Launch AKS Dashboard"
+        Write-Host "16: Launch Grafana Dashboard"
         Write-Host "------ Infrastructure -------"
-        Write-Host "12: Install Load Balancer"
+        Write-Host "12: Initialize Kubernetes Cluster"
         Write-Host "13: Show Installed Helm Packages"
         Write-Host "----- Troubleshooting ----"
         Write-Host "9: Show nodes"
@@ -232,7 +233,14 @@ function ShowMainMenu() {
                 if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
-                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
+                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $true
+            }
+            '16' {
+                $resourceGroup = $(GetResourceGroupFromSecret).Value
+                if (!$resourceGroup) {
+                    $resourceGroup = Read-Host "Resource Group"
+                }
+                LaunchGrafana -runAsJob $true
             }
             '20' {
                 Write-Host "Current cluster: $(kubectl config current-context)"
