@@ -240,7 +240,7 @@ function ShowMainMenu() {
                 if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
-                LaunchGrafana -runAsJob $true
+                LaunchGrafana -runAsJob $false
             }
             '20' {
                 Write-Host "Current cluster: $(kubectl config current-context)"
