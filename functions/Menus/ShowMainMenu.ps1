@@ -233,7 +233,7 @@ function ShowMainMenu() {
                 if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
-                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $true
+                LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
             }
             '16' {
                 $resourceGroup = $(GetResourceGroupFromSecret).Value
