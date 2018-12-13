@@ -70,6 +70,14 @@ function ShowMainMenu() {
     if($kubectlInfo){
         [string] $kubectlVersion = $(kubectl version --client=true --short=true)
         Write-Host "Using kubectl version [$kubectlVersion] from $($kubectlInfo.Source)"
+
+        $kubectlVersionJson = $(kubectl version --client=true --short=true -o json | ConvertFrom-Json)
+        [int] $kubectlMajorVersion = $kubectlVersionJson.clientVersion.major
+        [int] $kubectlMinorVersion = $kubectlVersionJson.clientVersion.minor
+        if($kubectlMinorVersion -lt 12){
+            Write-Warning "You have version ${kubectlMajorVersion}.${kubectlMinorVersion} of kubectl.exe.  Minimum version is v1.12.0. Installing latest version of kubectl.."
+            InstallKubectl
+        }
     }
     else {
         Write-Warning "No kubectl found in the path.  Choose Install Client tools below."
@@ -96,7 +104,8 @@ function ShowMainMenu() {
             Write-Host "prerelease flag: $prerelease"
         }
         Write-Warning "CURRENT CLUSTER: $currentcluster"
-
+        Write-Host "------ Guided Setup -------"
+        Write-Host "0: Start Guided Setup"
         Write-Host "------ Access Control -------"
         Write-Host "1: Login as admin"
         Write-Host "2: Login as user"
@@ -136,6 +145,14 @@ function ShowMainMenu() {
         #--------------------------------------
         $userinput = Read-Host "Please make a selection"
         switch ($userinput) {
+            '0' {
+                [string] $resourceGroup = ""
+                # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
+                while ([string]::IsNullOrWhiteSpace($resourceGroup)) {
+                    $resourceGroup = Read-Host "Resource Group"
+                }
+                RunGuidedSetup -resourceGroup $resourceGroup -Verbose
+            }
             '1' {
                 [string] $resourceGroup = ""
                 # [string] $resourceGroup = $(GetResourceGroupFromSecret -Verbose).Value
@@ -229,14 +246,14 @@ function ShowMainMenu() {
                 ListHelmPackages
             }
             '15' {
-                $resourceGroup = $(GetResourceGroupFromSecret).Value
+                $resourceGroup = $(GetResourceGroupFromSecret -ErrorAction SilentlyContinue).Value
                 if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
                 LaunchAksDashboard -resourceGroup $resourceGroup -runAsJob $false
             }
             '16' {
-                $resourceGroup = $(GetResourceGroupFromSecret).Value
+                $resourceGroup = $(GetResourceGroupFromSecret -ErrorAction SilentlyContinue).Value
                 if (!$resourceGroup) {
                     $resourceGroup = Read-Host "Resource Group"
                 }
