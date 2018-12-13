@@ -19,12 +19,11 @@ RunGuidedSetup
 
 
 #>
-function RunGuidedSetup()
-{
+function RunGuidedSetup() {
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $resourceGroup
@@ -40,21 +39,34 @@ function RunGuidedSetup()
 
     [string] $clusterName = $(GetClusterName -resourceGroup $resourceGroup -Verbose).ClusterName
 
-    GetClusterCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
+    [string] $downloadCredentials = ""
+    while ([string]::IsNullOrWhiteSpace($downloadCredentials)) {
+        [string] $downloadCredentials = Read-Host -Prompt "Download Cluster Credentials? [Y/N]"
+    }
+    if ($downloadCredentials -eq 'y') {
+        GetClusterCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
+    }
+
 
     $currentcluster = $(kubectl config current-context 2> $null)
 
     Write-Host "Now pointing to cluster $currentcluster"
 
-    [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
-    InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName -Verbose
+    [string] $installKubernetes = ""
+    while ([string]::IsNullOrWhiteSpace($installKubernetes)) {
+        [string] $installKubernetes = Read-Host -Prompt "Initialize Kubernetes? [Y/N]"
+    }
+    if ($installKubernetes -eq 'y') {
+        [string] $currentsubscriptionName = $(Get-AzureRmContext).Subscription.Name
+        InitKubernetes -resourceGroup $resourceGroup -subscriptionName $currentsubscriptionName -Verbose
+    }
 
     [string] $installRealtime = ""
-    while([string]::IsNullOrWhiteSpace($installRealtime)){
+    while ([string]::IsNullOrWhiteSpace($installRealtime)) {
         [string] $installRealtime = Read-Host -Prompt "Install Fabric.Realtime? [Y/N]"
     }
 
-    if($installRealtime -eq 'y'){
+    if ($installRealtime -eq 'y') {
         $packageUrl = $kubeGlobals.realtimePackageUrl
         $namespace = "fabricrealtime"
         $local = $true
