@@ -96,7 +96,9 @@ function ShowMainMenu() {
         $skip = $false
         $currentcluster = ""
         if (Test-CommandExists kubectl) {
+            $ErrorActionPreference = "Continue"
             $currentcluster = $(kubectl config current-context 2> $null)
+            $ErrorActionPreference = "Stop"
         }
 
         Write-Host "================ Health Catalyst ================"
