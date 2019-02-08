@@ -66,6 +66,8 @@ function ShowMainMenu() {
     [string] $subscriptionName = $(az account show --query "name"  --output tsv)
     Write-Host "User = $loggedInUser with subscription [$subscriptionName]"
 
+    AddFolderToPath -Path "$env:USERPROFILE\.azure-kubectl"
+
     $kubectlInfo = $(Get-Command kubectl.exe -ErrorAction SilentlyContinue)
     if($kubectlInfo){
         [string] $kubectlVersion = $(kubectl version --client=true --short=true)

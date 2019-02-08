@@ -33,6 +33,8 @@ function RunGuidedSetup() {
     Set-StrictMode -Version latest
     $ErrorActionPreference = 'Stop'
 
+    az account list --refresh
+
     ChooseFromSubscriptionList
 
     # CheckUserIsKubernetesAdministrator
@@ -47,10 +49,11 @@ function RunGuidedSetup() {
         GetClusterCredentials -resourceGroup $resourceGroup -clusterName $clusterName -Verbose
     }
 
-
     $currentcluster = $(kubectl config current-context 2> $null)
 
     Write-Host "Now pointing to cluster $currentcluster"
+
+    InitHelm
 
     [string] $installKubernetes = ""
     while ([string]::IsNullOrWhiteSpace($installKubernetes)) {
